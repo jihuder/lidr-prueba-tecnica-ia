@@ -1,5 +1,7 @@
 # 🕐 LIDR Prueba Técnica IA - Cronómetro Web
 
+![Preview del Cronómetro](imagen.png)
+
 Aplicación web de cronómetro interactivo desarrollada con **HTML, CSS y JavaScript vanilla**. Implementa una arquitectura orientada a objetos, gestión estricta de estados y renderizado de alto rendimiento mediante `requestAnimationFrame`.
 
 ## ✨ Características
