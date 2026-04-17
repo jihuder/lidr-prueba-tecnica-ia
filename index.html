@@ -2,18 +2,22 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cronómetro</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="stopwatch-container">
-    <div id="display" class="stopwatch-display">00:00.00</div>
+    <section class="display-row" aria-label="Visualización de tiempo">
+      <div id="main-display">00:00:00</div>
+      <div id="ms-display">000</div>
+    </section>
 
-    <div class="stopwatch-controls">
-      <button id="startBtn" class="btn-start">Iniciar</button>
-      <button id="pauseResumeBtn" class="btn-pause" disabled>Pausar</button>
-      <button id="resetBtn" class="btn-reset" disabled>Reiniciar</button>
-    </div>
+    <section class="controls" aria-label="Controles del cronómetro">
+      <button id="startBtn" class="btn btn-start" type="button">Iniciar</button>
+      <button id="pauseResumeBtn" class="btn btn-pause" type="button" disabled>Pausar</button>
+      <button id="resetBtn" class="btn btn-reset" type="button" disabled>Reiniciar</button>
+    </section>
   </main>
 
   <script src="script.js"></script>

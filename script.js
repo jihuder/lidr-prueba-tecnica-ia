@@ -1,67 +1,38 @@
 class Stopwatch {
-  constructor(displayElement) {
-    this.displayElement = displayElement;
+  constructor(mainDisplayEl, msDisplayEl) {
+    this.mainDisplayEl = mainDisplayEl;
+    this.msDisplayEl = msDisplayEl;
 
-    // Estado: 'idle' | 'running' | 'paused'
-    this.state = 'idle';
-
-    // Tiempo acumulado en milisegundos
-    this.elapsedTime = 0;
-
-    // Marca de inicio/reanudación
-    this.startTime = 0;
-
-    // requestAnimationFrame id
-    this.rafId = null;
+    this.state = "idle"; // idle | running | paused
+    this.elapsedTime = 0; // milisegundos acumulados
+    this.startTime = 0; // referencia para calcular elapsed en running
+    this.rafId = null; // id de requestAnimationFrame
 
     this.updateDisplay();
+  }
+
+  formatMainTime(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const hh = String(hours).padStart(2, "0");
+    const mm = String(minutes).padStart(2, "0");
+    const ss = String(seconds).padStart(2, "0");
+
+    return `${hh}:${mm}:${ss}`;
+  }
+
+  formatMilliseconds(ms) {
+    const milliseconds = ms % 1000;
+    return String(milliseconds).padStart(3, "0");
   }
 
   updateDisplay() {
-    const totalMilliseconds = this.elapsedTime;
-
-    const minutes = Math.floor(totalMilliseconds / 60000);
-    const seconds = Math.floor((totalMilliseconds % 60000) / 1000);
-    const centiseconds = Math.floor((totalMilliseconds % 1000) / 10);
-
-    const mm = String(minutes).padStart(2, "0");
-    const ss = String(seconds).padStart(2, "0");
-    const cc = String(centiseconds).padStart(2, "0");
-
-    this.displayElement.textContent = `${mm}:${ss}.${cc}`;
-  }
-
-  start() {
-    if (this.state === "running") return;
-
-    // Si venía de pausa, conserva elapsedTime; si venía de idle, elapsedTime será 0
-    this.startTime = Date.now() - this.elapsedTime;
-    this.state = "running";
-
-    this.render();
-  }
-
-  pause() {
-    if (this.state !== "running") return;
-
-    this.elapsedTime = Date.now() - this.startTime;
-    this.state = "paused";
-
-    if (this.rafId) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
-  }
-
-  reset() {
-    if (this.rafId) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
-
-    this.elapsedTime = 0;
-    this.state = "idle";
-    this.updateDisplay();
+    this.mainDisplayEl.textContent = this.formatMainTime(this.elapsedTime);
+    this.msDisplayEl.textContent = this.formatMilliseconds(this.elapsedTime);
   }
 
   render = () => {
@@ -72,36 +43,80 @@ class Stopwatch {
 
     this.rafId = requestAnimationFrame(this.render);
   };
+
+  start() {
+    if (this.state === "running") return;
+
+    this.startTime = Date.now() - this.elapsedTime;
+    this.state = "running";
+    this.rafId = requestAnimationFrame(this.render);
+  }
+
+  pause() {
+    if (this.state !== "running") return;
+
+    this.elapsedTime = Date.now() - this.startTime;
+    this.state = "paused";
+
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  reset() {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+
+    this.elapsedTime = 0;
+    this.startTime = 0;
+    this.state = "idle";
+    this.updateDisplay();
+  }
 }
 
-// ---------- Integración con botones ----------
-const displayEl = document.getElementById("display");
+// DOM
+const mainDisplay = document.getElementById("main-display");
+const msDisplay = document.getElementById("ms-display");
+
 const startBtn = document.getElementById("startBtn");
 const pauseResumeBtn = document.getElementById("pauseResumeBtn");
 const resetBtn = document.getElementById("resetBtn");
 
-const stopwatch = new Stopwatch(displayEl);
+const stopwatch = new Stopwatch(mainDisplay, msDisplay);
+
+function syncUI() {
+  startBtn.disabled = stopwatch.state !== "idle";
+
+  const canControl = stopwatch.state === "running" || stopwatch.state === "paused";
+  pauseResumeBtn.disabled = !canControl;
+  resetBtn.disabled = !canControl;
+
+  pauseResumeBtn.textContent = stopwatch.state === "running" ? "Pausar" : "Continuar";
+}
 
 startBtn.addEventListener("click", () => {
-  stopwatch.start();
-  pauseResumeBtn.disabled = false;
-  resetBtn.disabled = false;
-  pauseResumeBtn.textContent = "Pausar";
+  if (stopwatch.state === "idle") {
+    stopwatch.start();
+    syncUI();
+  }
 });
 
 pauseResumeBtn.addEventListener("click", () => {
   if (stopwatch.state === "running") {
     stopwatch.pause();
-    pauseResumeBtn.textContent = "Reanudar";
   } else if (stopwatch.state === "paused") {
-    stopwatch.start(); // reutiliza start() para reanudar
-    pauseResumeBtn.textContent = "Pausar";
+    stopwatch.start();
   }
+
+  syncUI();
 });
 
 resetBtn.addEventListener("click", () => {
   stopwatch.reset();
-  pauseResumeBtn.disabled = true;
-  resetBtn.disabled = true;
-  pauseResumeBtn.textContent = "Pausar";
+  syncUI();
 });
+
+syncUI();
