@@ -1,9 +1,9 @@
 :root {
   --bg: #0f172a;
-  --card: #111827;
-  --text: #e5e7eb;
-  --muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.08);
+  --card: #dfe1e8;
+  --text: #111827;
+  --muted: #1f2937;
+  --border-dark: #2f2f35;
 
   --start: #16a34a;
   --pause: #f59e0b;
@@ -28,69 +28,75 @@ body {
 }
 
 .stopwatch-container {
-  width: min(92vw, 520px);
+  width: min(94vw, 980px);
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 18px;
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-/* Layout estable para evitar saltos visuales */
-.display-row {
+/* Caja del display como en referencia */
+.display-shell {
+  width: 100%;
+  background: #d9dbe6;
+  border: 6px solid var(--border-dark);
+  border-radius: 34px;
+  padding: 18px 26px 10px;
   display: flex;
-  justify-content: center;
-  align-items: baseline;
-  gap: 10px;
-  white-space: nowrap;
-  min-height: 80px;
+  flex-direction: column;
+  align-items: stretch;
 }
 
-/* Fuente monoespaciada en ambos contadores */
-#main-display,
+/* Contador principal HH:MM:SS */
+#main-display {
+  font-family: "JetBrains Mono", "Courier New", Courier, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2.8rem, 12vw, 8rem);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  color: #000;
+  text-align: center;
+  white-space: nowrap; /* evita saltos al cambiar dígitos */
+  margin: 0;
+  min-width: 8.8ch; /* estabilidad */
+}
+
+/* Milisegundos abajo y alineados a la derecha */
 #ms-display {
   font-family: "JetBrains Mono", "Courier New", Courier, monospace;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
-}
-
-/* HH:MM:SS */
-#main-display {
-  font-size: clamp(2rem, 8vw, 3.2rem);
+  font-size: clamp(0.95rem, 2.5vw, 2rem);
   line-height: 1;
-  font-weight: 700;
-  min-width: 8.8ch; /* ancho fijo aprox para HH:MM:SS */
+  font-weight: 500;
+  color: #111;
   text-align: right;
+  white-space: nowrap;
+  margin-top: 2px;
+  padding-right: 16%; 
+  min-width: 3ch; /* 000-999 */
+  min-height: 1em;
 }
 
-/* 000-999 más pequeño pero ligado visualmente */
-#ms-display {
-  font-size: clamp(1rem, 3vw, 1.35rem);
-  line-height: 1;
-  font-weight: 600;
-  color: var(--muted);
-  min-width: 3ch;
-  text-align: left;
-  transform: translateY(-2px);
-}
-
+/* Controles */
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
+  justify-content: center;
 }
 
 .btn {
-  flex: 1 1 140px;
-  min-height: 44px;
-  border: 0;
-  border-radius: 12px;
+  flex: 1 1 220px;
+  min-height: 72px;
+  border: 5px solid #34343a;
+  border-radius: 18px;
   color: #fff;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: clamp(1.15rem, 3.2vw, 2.1rem);
+  font-weight: 500;
   cursor: pointer;
   transition: transform 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
 }
@@ -104,23 +110,48 @@ body {
   transform: translateY(0);
 }
 
+/* Colores de botones */
 .btn-start {
-  background: var(--start);
+  background: linear-gradient(180deg, #38ef7d 0%, #11998e 100%);
 }
 
 .btn-pause {
-  background: var(--pause);
+  background: linear-gradient(180deg, #22d3ee 0%, #1d4ed8 100%);
 }
 
 .btn-reset {
-  background: var(--reset);
+  background: #ef1111;
 }
 
+/* Estado deshabilitado */
 .btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
-  filter: none;
+  filter: grayscale(0.15);
   transform: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stopwatch-container {
+    width: min(96vw, 680px);
+    padding: 14px;
+  }
+
+  .display-shell {
+    border-width: 5px;
+    border-radius: 24px;
+    padding: 14px 14px 8px;
+  }
+
+  #ms-display {
+    padding-right: 6%;
+  }
+
+  .btn {
+    flex: 1 1 180px;
+    min-height: 62px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -131,5 +162,16 @@ body {
   .btn {
     width: 100%;
     flex: 1 1 auto;
+    min-height: 56px;
+    font-size: 1.3rem;
+  }
+
+  #main-display {
+    font-size: clamp(2.4rem, 15vw, 4rem);
+  }
+
+  #ms-display {
+    font-size: clamp(0.9rem, 4vw, 1.2rem);
+    padding-right: 4%;
   }
 }
